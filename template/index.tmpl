@@ -1,0 +1,272 @@
+<!Doctype html>
+
+<html>
+  <head>
+    <title>MyEvernote</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Twitter Bootstrap -->
+    <link href="public/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="public/css/bootstrap-responsive.css" rel="stylesheet" media="screen">
+    <link href="public/css/docs.css" rel="stylesheet" media="screen">
+
+    <!-- jQuery & bootstrap.js -->
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
+    <script src="public/js/bootstrap.min.js"></script>
+
+    <!-- Data Tables -->
+    <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/css/jquery.dataTables.css">
+    <link href="public/css/data-tables.css" rel="stylesheet" media="screen">
+    <link href="public/css/data-tables-bootstrap.css" rel="stylesheet" media="screen">
+
+    <!-- my evernote server -->
+    <!-- <link href="public/css/my-evernote.css" rel="stylesheet" media="screen"> -->
+
+    <style>
+      .row_selected {
+      background-color:#0088cc !important;
+      color:white !important;
+      }
+      .note_selected {
+      background-color:#0088cc !important;
+      color:white !important;
+      }
+    </style>
+  </head>
+  
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+    
+    <!-- ==================================================
+	 Input Dialogs
+	 ================================================== -->
+
+    <!------------------------------------------------------
+	Update Memo Dialog 
+      ------------------------------------------------------>
+    <div id="updateMemo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="updateMemoDialogLabel" aria-hidden="true">
+      <div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="updateMemoDialogLabel"> メモを更新</h3>
+      </div>
+      <div class="modal-body">
+	<form id="updateMemoForm">
+	  <fieldset>
+	    <legend></legend>
+	    <select class="selectDstNote" name="note-id-form">
+	    </select>
+	    <label>タイトル</label>
+	    <input type="text" name="title-form" placeholder="タイトルを入力してください">
+	    <label class="textarea">メモの内容</label>
+	    <textarea name="memo-form"></textarea>
+	  </fieldset>
+	</form>
+      </div>
+      <div class="modal-footer">
+	<button class="btn" data-dismiss="modal" aria-hidden="true">キャンセル</button>
+	<button id="updateMemoButton" class="btn btn-primary">メモを保存</button>
+      </div>
+    </div>
+
+    <!------------------------------------------------------
+	Add Memo Dialog 
+      ------------------------------------------------------>
+    <div id="newMemo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="addMemoDiglogLabel" aria-hidden="true">
+      <div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="addMemoDiglogLabel"> 新しいメモを追加</h3>
+      </div>
+      <div class="modal-body">
+	<form id="newMemoForm">
+	  <fieldset>
+	    <legend></legend>
+	    <select class="selectDstNote" name="note-id-form">
+	    </select>
+	    <label>タイトル</label>
+	    <input type="text" name="title-form" placeholder="タイトルを入力してください">
+	    <label class="textarea">メモの内容</label>
+	    <textarea name="memo-form"></textarea>
+	  </fieldset>
+	</form>
+      </div>
+      <div class="modal-footer">
+	<button class="btn" data-dismiss="modal" aria-hidden="true">キャンセル</button>
+	<button id="newMemoButton" class="btn btn-primary">メモを保存</button>
+      </div>
+    </div>
+
+    <!------------------------------------------------------
+	Delete Memo Dialog 
+      ------------------------------------------------------>
+    <div id="deleteMemo" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteMemoDialogLabel" aria-hidden="true">
+      <div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="deleteMemoDialogLabel"> メモを削除</h3>
+      </div>
+      <div class="modal-body">
+	選択されたメモを削除します。<br>
+        消したメモは完全に削除されます。
+      </div>
+      <div class="modal-footer">
+	<button class="btn" data-dismiss="modal" aria-hidden="true">キャンセル</button>
+	<button id="deleteMemoButton" class="btn btn-primary">メモを削除</button>
+      </div>
+    </div>
+
+    <!------------------------------------------------------
+	Delete Note Dialog 
+      ------------------------------------------------------>
+    <div id="deleteNote" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteNoteDialogLabel" aria-hidden="true">
+      <div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="deleteNoteDialogLabel"> ノートを削除</h3>
+      </div>
+      <div class="modal-body">
+	選択されたノートを削除します。<br>
+        含まれるメモはどうなるかわかりません。
+      </div>
+      <div class="modal-footer">
+	<button class="btn" data-dismiss="modal" aria-hidden="true">キャンセル</button>
+	<button id="deleteNoteButton" class="btn btn-primary">メモを削除</button>
+      </div>
+    </div>
+
+
+    <!------------------------------------------------------
+	new Note Dialog 
+      ------------------------------------------------------>
+    <div id="newNote" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newNoteDialogLabel" aria-hidden="true">
+      <div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="newNoteDialogLabel"> 新しいノートを追加</h3>
+      </div>
+      <div class="modal-body">
+	<form id="newNoteForm">
+	  <fieldset>
+	    <legend></legend>
+	    <label>タイトル</label>
+	    <input type="text" name="title-form" placeholder="タイトルを入力してください">
+	  </fieldset>
+	</form>
+      </div>
+      <div class="modal-footer">
+	<button class="btn" data-dismiss="modal" aria-hidden="true">キャンセル</button>
+	<button id="newNoteButton" class="btn btn-primary">メモを保存</button>
+      </div>
+    </div>
+    
+    <div id="updateNote" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="updateNoteDialogLabel" aria-hidden="true">
+      <div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="updateNoteDialogLabel"> ノートの名前を変更</h3>
+      </div>
+      <div class="modal-body">
+	<form id="updateNoteForm">
+	  <fieldset>
+	    <legend></legend>
+	    <label>タイトル</label>
+	    <input type="text" name="title-form" placeholder="タイトルを入力してください">
+	  </fieldset>
+	</form>
+      </div>
+      <div class="modal-footer">
+	<button class="btn" data-dismiss="modal" aria-hidden="true">キャンセル</button>
+	<button id="updateNoteButton" class="btn btn-primary">メモを保存</button>
+      </div>
+    </div>
+
+
+    <!-- ==================================================
+	 Navbar
+	 ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+	<ul class="nav">
+	  <li class="active"><a class="brand" href="#">My Evernote</a></li>
+	  <li ><a href="#">Home</a></li>
+	  <li ><a href="#">ようこそ <% @var user %> さん</a></li>
+	  <li><a href="http://ja.wikipedia.org/wiki/Markdown">Markdownについて</a></li>
+	  <li class="active"> <a href="#newMemo" role="button" class="btn-mini btn-success" data-toggle="modal">メモを追加</a> </li>
+	</ul>
+      </div> <!-- navbar-inner -->
+    </div><!-- navbar -->
+    
+    <div class="container-fluid">
+      <div class="row-fluid fill">
+        <div id="map" class="span2">
+          <div class="well sidebar-nav">
+	    <ul class="nav nav-list">
+	      <li> <a href="#newNote" role="button" class="btn-mini btn-success" data-toggle="modal">ノートを追加</a> </li>
+	      <li> <a href="#updateNote" role="button" class=" btn-mini btn-success" data-toggle="modal">ノート名を変更</a> </li>
+	      <li> <a href="#deleteNote" role="button" class=" btn-mini btn-danger" data-toggle="modal">ノートを削除</a> </li>
+
+	    </ul>
+
+	    <ul class="nav nav-list">
+	      <li class="nav-header">Notebook</li>
+              <a id="showAllMemo" href="#">全てのメモを表示</a>
+	    </ul>
+	    <ul class="nav nav-list" id="noteList"></ul>
+	  </div><!--/.well -->
+	</div><!--/span2-->
+
+	<div class="span10">  </div>
+
+	<div class="span10">
+	  <!--Body content-->
+	  <table id="main-table" class="table table-striped table-bordered">
+	    <thead>
+	      <tr>
+		<th>#</th>
+		<th>Title</th>
+		<th>作成者</th>
+		<th>最終更新者</th>
+		<th>最終更新日</th>
+		<th>作成日</th>
+		<th>ノート種別</th>
+		<th style="display:none;">content</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	    </tbody>
+	  </table>
+
+	  <hr>
+	  
+	  <div class="span12" style="margin:0;border: 1px solid #DDDDDD;border-left: 1px solid #DDDDDD;border-right: 1px solid #DDDDDD;">
+	    
+	    
+	    <div class="span12">
+	      <div class="span9">
+		<h4 id="title" ></h4>
+	      </div>
+	      <div class="span3">
+		<a href="#updateMemo" role="button" class="btn btn-success" data-toggle="modal">メモを更新</a>
+		<a href="#deleteMemo" role="button" class="btn btn-success" data-toggle="modal">メモを削除</a>
+	      </div>
+	    </div>
+	    
+	    <div class="span12" style="margin:0;border: 1px solid #DDDDDD;border-left: 1px solid #DDDDDD;border-right: 1px solid #DDDDDD;">
+	      <div id="content"> 
+		<p></p>
+	      </div>
+	    </div>
+	  </div>
+	  
+	</div>
+      </div>
+    </div><!-- row-fluid -->
+</div>
+
+
+<!-- <script src="public/js/insert.js"></script> -->
+<script src="public/js/showdown/src/showdown.js"></script>
+<script src="public/js/init.js"></script>
+
+<script src="public/js/my-evernote-main.js"></script>
+
+
+</body>
+</html>
