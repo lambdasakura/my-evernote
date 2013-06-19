@@ -135,7 +135,7 @@
 	  ((favicon-p path) (get-favicon))
 	  ((or (compare-path this query "/index.html")
 	       (compare-path this query "/"))
-	   (render-template this "/index.tmpl" (list :user (getf query :username))))
+	   (render-template this "index.tmpl" (list :user (getf query :username))))
 	  ((compare-path this query "/api/addMemo") (add-memo-api this query-info))
 	  ((compare-path this query "/api/addNote") (add-note-api this query-info))
 	  ((compare-path this query "/api/deleteMemo") (delete-memo-api this  query-info))

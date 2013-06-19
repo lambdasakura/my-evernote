@@ -27,6 +27,7 @@
           clack.middleware.static:<clack-middleware-static>))
 (import '(clack:call clack:<component>))
 
+
 (defclass <my-evernote-app> (<component>) 
   ((template-dir :accessor template-dir :initarg :template-dir)
    (static-dir :accessor static-dir :initarg :static-dir)
@@ -68,6 +69,11 @@
 (let ((server nil))
   @export
   (defun server-start (&key basic-auth base-url static-dir template-dir (port 5000) db-name)
+    (kmrcl:set-signal-handler :INT 
+                          (lambda (&rest args)
+                            (declare (ignore args))
+                            (format t "~&* Exiting...~%")
+			    (sb-ext:quit)))
     (let ((my-evernote-server (make-instance '<my-evernote-app>
 					     :template-dir template-dir
 					     :base-url base-url
@@ -93,13 +99,12 @@
 
 @export
 (defun start()
-  (server-start 
-   :basic-auth nil
-   :base-url "/my-evernote" 
-   :static-dir "/home/sakura/quicklisp/local-projects/my-evernote-server/statics/"
-   :template-dir "/home/sakura/quicklisp/local-projects/my-evernote-server/template/"
-   :port 5000
-   :db-name "/home/sakura/quicklisp/local-projects/my-evernote-server/my_evernote_memo.db"))
+  (server-start :basic-auth nil
+		:base-url "/my-evernote" 
+		:static-dir "./statics/"
+		:template-dir "./template/"
+		:port 5000
+		:db-name "./my_evernote_memo.db"))
 
 @export
 (defun stop()
