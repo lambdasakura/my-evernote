@@ -6,7 +6,7 @@ var converter = new Showdown.converter();
 (function(MyEvernote) {
     
     var table;
-    var baseURL = "http://light-of-moe.ddo.jp/my-evernote/";
+    var baseURL = "http://example.com/my-evernote/";
     var selectedNote=0;
 
     MyEvernote.sendNewMemo = function(title,memo,author,note_id) {
