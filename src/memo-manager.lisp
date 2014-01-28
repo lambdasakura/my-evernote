@@ -68,7 +68,6 @@
 	     (execute-sql this "SELECT * FROM memo LEFT JOIN note_kind ON memo.note_id = note_kind.note_id;")
 	     (execute-sql this "SELECT * FROM memo LEFT JOIN note_kind ON memo.note_id = note_kind.note_id WHERE memo.note_id = ?;" note-id)) do
 	 (push (alexandria:plist-hash-table row) list))
-    (print list)
     list))
 
 @export
@@ -111,7 +110,6 @@
   (let ((list '()))
     (loop for row in (execute-sql this "SELECT * FROM note_kind;") do
 	 (push (alexandria:plist-hash-table row) list))
-    (print list)
     list))
 
 @export
