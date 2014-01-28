@@ -49,83 +49,66 @@
     (:content-type "image/x-icon")
     #p"./static/favicon.ico"))
 
+(defun generate-JSONP-response (env list)
+  (let ((callback (getf env :|callback|))
+	(json (json:encode-json-to-string  list))
+	(res-string (format nil "~A(~A)" callback json)))
+    `(200 (:content-type "text/javascript") (,res-string))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; getMemo API
+;; JSONP API
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmethod get-memos-api ((this Sakuya) env)
-  (let* ((callback (getf env :|callback|))
-	 (json (json:encode-json-to-string  (memo-manager:get-memo-all (db-admin this) :note-id (getf env :|note_id|))))
-	 (res-string (format nil "~A(~A)" callback json)))
-    `(200
-      (:content-type "text/javascript")
-      (,res-string))))
+  (generate-JSONP-response env (memo-manager:get-memo-all
+				(db-admin this) :note-id (getf env :|note_id|))))
 
 (defmethod get-notes-api ((this Sakuya) env)
-  (let* ((callback (getf env :|callback|))
-	 (json (json:encode-json-to-string  (memo-manager:get-note-all (db-admin this))))
-	 (res-string (format nil "~A(~A)" callback json)))
-    `(200
-      (:content-type "text/javascript")
-      (,res-string))))
+  (generate-JSONP-response env (memo-manager:get-note-all (db-admin this))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; addMemo API
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmethod update-note-api ((this Sakuya) env)
-  (memo-manager:update-note
-   (db-admin this)
-   (getf env :|note_id|)
-   :name (getf env :|title|))
-  `(200 (:content-type "text/plain") ("OK")))
-
+  (memo-manager:update-note (db-admin this)
+			    (getf env :|note_id|)
+			    :name (getf env :|title|))
+  (generate-JSONP-response env ()))
 
 (defmethod update-memo-api ((this Sakuya) env)
-  (memo-manager:update-memo 
-   (db-admin this)
-   (getf env :|memo_id|)
-   :note-id (getf env :|note_id|)
-   :author (getf env :|username|)
-   :title (getf env :|title|)
-   :text  (getf env :|memo|))
-  `(200 (:content-type "text/plain") ("OK")))
-
+  (memo-manager:update-memo (db-admin this)
+			    (getf env :|memo_id|) :note-id (getf env :|note_id|)
+			    :author (getf env :|username|)
+			    :title (getf env :|title|)
+			    :text  (getf env :|memo|))
+  (generate-JSONP-response env ()))
 
 (defmethod add-note-api ((this Sakuya) env)
-  (memo-manager:add-new-note 
-   (db-admin this)
-   :name (getf env :|title|))
-  `(200 (:content-type "text/plain") ("OK")))
+  (memo-manager:add-new-note (db-admin this)
+			     :name (getf env :|title|))
+  (generate-JSONP-response env ()))
 
 (defmethod add-memo-api ((this Sakuya) env)
-  (memo-manager:add-new-memo 
-   (db-admin this)
-   :note-id (getf env :|note_id|)
-   :author (getf env :|username|)
-   :title (getf env :|title|)
-   :text  (getf env :|memo|))
-  `(200 (:content-type "text/plain") ("OK")))
+  (memo-manager:add-new-memo (db-admin this)
+			     :note-id (getf env :|note_id|)
+			     :author (getf env :|username|)
+			     :title (getf env :|title|)
+			     :text  (getf env :|memo|))
+  (generate-JSONP-response env ()))
     
 (defmethod delete-memo-api ((this Sakuya) env)
-  (memo-manager:delete-memo 
-   (db-admin this)
-   (getf env :|memo_id|))
-  `(200 (:content-type "text/plain") ("OK")))
+  (memo-manager:delete-memo (db-admin this)
+			    (getf env :|memo_id|))
+  (generate-JSONP-response env ()))
 
 (defmethod delete-note-api ((this Sakuya) env)
-  (memo-manager:delete-note
-   (db-admin this)
-   (getf env :|note_id|))
-  `(200 (:content-type "text/plain") ("OK")))
+  (memo-manager:delete-note (db-admin this)
+			    (getf env :|note_id|))
+  (generate-JSONP-response env ()))
 
 (defmethod compare-path ((this Sakuya) env target)
   (string= (getf env :path-info) (format nil "~@{~A~}"
 					 (base-url this) target)))
 
 (defmethod render-template ((this Sakuya) path env)
-  (list 
-   200
-   '(:content-type "text/html")
-   (list (emb:execute-emb (merge-pathnames (template-dir this) path) :env env))))
+  (list 200 '(:content-type "text/html")
+	(list (emb:execute-emb (merge-pathnames (template-dir this) path) :env env))))
 
 (defmethod service ((this Sakuya) query)
   (let ((path (getf query :path-info))
@@ -135,7 +118,7 @@
 	  ((favicon-p path) (get-favicon))
 	  ((or (compare-path this query "/index.html")
 	       (compare-path this query "/"))
-	   (render-template this "index.tmpl" (list :user (getf query :username))))
+	   (render-template this "/index.tmpl" (list :user (getf query :username))))
 	  ((compare-path this query "/api/addMemo") (add-memo-api this query-info))
 	  ((compare-path this query "/api/addNote") (add-note-api this query-info))
 	  ((compare-path this query "/api/deleteMemo") (delete-memo-api this  query-info))
